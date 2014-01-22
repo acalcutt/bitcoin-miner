@@ -1,4 +1,3 @@
-
 //Work Object
 function Work() {
   
@@ -46,7 +45,8 @@ function Work() {
 		
 		var request = {};
 		request.method = 'getwork';
-		request.params = '["'+sData+'"]';
+		request.params = [];
+		request.params[0] = sData;
 		request.id = 1;
 
 		var data = JSON.parse(self.sAjax('proxy.php', JSON.stringify(request)));
