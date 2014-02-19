@@ -1,9 +1,9 @@
-importScripts('./work.js');
-importScripts('./hasher.js');
-importScripts('./core-min.js');
-importScripts('./enc-base64-min.js');
-importScripts('./hmac-sha256.js');
-importScripts('./json2.js');
+importScripts('work.js');
+importScripts('hasher.js');
+importScripts('core-min.js');
+importScripts('enc-base64-min.js');
+importScripts('hmac-sha256.js');
+importScripts('json2.js');
 
 var WORK_TIMEOUT = 60 * 1000; // ms
 
@@ -117,14 +117,17 @@ function doWork() {
 				
 				//submit work
 				var submitResult = curWork.submit();
-				
-				if(submitResult==true) {
+				console.log("Submited returned: "+submitResult);	
+				var subType = typeof submitResult;
+				console.log("Type of submit is: " + subType);
+				if(submitResult === true )   {
 					
-					self.postMessage({'notification': POW_TRUE});
+					self.postMessage({'notification': Notification.POW_TRUE});
+					console.log("Sending POW_TRUE notification");
 					
 				} else {
 					
-					self.postMessage({'notification': POW_FALSE});
+					self.postMessage({'notification': Notification.POW_FALSE});
 					
 				}
 				
