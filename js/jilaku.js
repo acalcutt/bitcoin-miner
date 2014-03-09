@@ -13,6 +13,7 @@
 	document.write("	       	<table>");
 	document.write("	                      <tr><td><span>S&nbsp;</span><span  id='hashes-per-second'>0</span></td>");
 	document.write("	                      <td><span>H&nbsp;</span><span id='total-hashes'>0</span></td>");
+	document.write("                              <td><span>B&nbsp;</span><span id='gt-blocks'>0</span></td></tr>");  
 	document.write("	                      <td><span>A&nbsp;</span><span id='gt-response'>0</span></td></tr>"); 
 	document.write("	      	</table>");		
 	document.write("</div>");

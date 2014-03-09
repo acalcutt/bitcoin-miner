@@ -2,6 +2,10 @@ function Miner() {
   
 	var self = this;
 	var acceptedShares = 0;
+	var doingLp = false;
+	var totalHashes = 0;
+	var blocks =1;
+
 
 	this.Notification = {
 			SYSTEM_ERROR : 0,
@@ -23,26 +27,40 @@ function Miner() {
 	this.lastWorkTime = 0;
 	this.lastWorkHashes = 0;
 	
-	
-	// Setup new worker
+
+	console.log("Setting up LongPoll");
+	longpoll = new Worker('js/longpoll.js');
+
+	longpoll.onmessage = function (e) {
+		if (worker != null) {
+			worker.terminate();
+		}
+		worker = new Worker('js/worker.js'); 
+		worker.onmessage = workerMessage;
+		worker.postMessage({'cmd': 'start'});
+		blocks++;
+	}
+
 	 console.log("Setting up worker"); 
 	worker = new Worker('js/worker.js');
-	
-	worker.onmessage = function(e) {
+
+	worker.onmessage  = workerMessage;
+
+
+	 function workerMessage(e) {
 		
 		var notification = e.data.notification;
-		var workerHashes = e.data.workerHashes;
+		var tempHashes =  Number(e.data.workerHashes);
+		totalHashes = tempHashes;
+		var workerHashes = tempHashes;
 		var logMessage = e.data.logMessage;
 		var hashRate = e.data.hashRate;
 		var total_display;
 		var speed_display;
 		if ( typeof notification != 'undefined') {
-			console.log("Notification is: " + notification);
-			console.log("Comparing notification to: " + self.Notification.POW_TRUE);
 		if ( notification == self.Notification.POW_TRUE )
 			{
 				console.log("Pool accepted the share");
-				console.log("Current Notification is: " + notification);
 			acceptedShares = acceptedShares + 1;
 		}
 		}
@@ -90,6 +108,9 @@ function Miner() {
                 }                                                                                                                                                                                                                                                                                                                                
 		
 		document.getElementById('gt-response').innerHTML= acceptedShares.toString();
+
+		document.getElementById('gt-blocks').innerHTML= blocks.toString();
+
 		var message = '';
 
 		if(notification!=null) {
@@ -106,17 +127,17 @@ function Miner() {
 				case self.Notification.NEW_BLOCK_DETECTED: message = 'LONGPOLL detected new block.'; break;
 				case self.Notification.NEW_WORK: 
 	
-						if (self.lastWorkTime > 0) {
+				//		if (self.lastWorkTime > 0) {
+				//			
+			//				var hashes = workerHashes - self.lastWorkHashes;
+			//				var speed = hashes / Math.max(1, (new Date()).getTime() - self.lastWorkTime);
+		//					message = hashes + " hashes, " + speed.toFixed(2) + " khash/s";
 							
-							var hashes = workerHashes - self.lastWorkHashes;
-							var speed = hashes / Math.max(1, (new Date()).getTime() - self.lastWorkTime);
-							message = hashes + " hashes, " + speed.toFixed(2) + " khash/s";
-							
-						} else {
+		//				} else {
 							
 							message = 'Started new work.';
 							
-						}
+		//				}
 						
 						self.lastWorkTime = (new Date()).getTime();
 						self.lastWorkHashes = workerHashes;
@@ -164,7 +185,7 @@ function Miner() {
 		
     //	var logElement = document.getElementById('log');
    // 	logElement.innerHTML =logElement.innerHTML + "<br/>" + str;
-		
+	console.log(str);		
 	};
 	
 

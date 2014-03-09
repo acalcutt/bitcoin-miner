@@ -17,9 +17,8 @@ function Work() {
 		request.method = 'getwork';
 		request.params = [];
 		request.id = 0;
-
-	      var data = JSON.parse(self.sAjax('/lm/proxy.php', JSON.stringify(request)));
-	   
+	        var jsonResponse = self.sAjax('/lm/proxy.php', JSON.stringify(request));
+	      var data = JSON.parse(jsonResponse);
 		
 	//	var data = {"error": null, "id": 0, "result": {"hash1": "00000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000010000", "data": "00000002a3bae29a6fccebe9c403bc6a10d5405bb5287ddec98579bdbe0de13bbc6cdfd9cb18d9fc7b6b9697875069e87570c1137c7bc4bff5a0df9c07c0c2666eab0233519212f51b6dcb6a00000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000080020000", "target": "00000000ffff0000000000000000000000000000000000000000000000000000", "midstate": "2b62d0e5dd00cc7d267dc7cc77527e4ad652c4fdc2378d209907f988065c0435"}};
 		
@@ -28,9 +27,9 @@ function Work() {
 		self.target = self.hexStringToByteArray(data.result.target);
 		self.header = self.headerByData(self.data);
 		
-		postMessage({'logMessage': 'Data: '+data.result.data});
-		postMessage({'logMessage': 'Target: '+data.result.target});
-                postMessage({'logMessage': 'Header: '+self.byteArrayToHexString(self.header)});
+	//	postMessage({'logMessage': 'Data: '+data.result.data});
+//		postMessage({'logMessage': 'Target: '+data.result.target});
+  //              postMessage({'logMessage': 'Header: '+self.byteArrayToHexString(self.header)});
 		
 	};
 	
@@ -51,7 +50,6 @@ function Work() {
 		request.id = 1;
 
 		var data = JSON.parse(self.sAjax('/lm/proxy.php', JSON.stringify(request)));
-	    console.log("Return from submit: " + data.result);	
 		return data.result;
 
 
@@ -61,12 +59,6 @@ function Work() {
 
 		var hash = hasher.hash(self.header, nonce);
 
-		if(hashes%200==0) {
-			
-			postMessage({'logMessage': 'Latest hash (#'+hashes+'): '+self.byteArrayToHexString(hash)});
-			
-		}
-		
 		for (var i = hash.length - 1; i >= 0; i--) {
 			
 			if ((hash[i] & 0xff) > (self.target[i] & 0xff)) {

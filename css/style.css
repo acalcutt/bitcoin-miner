@@ -1,14 +1,14 @@
-body
-{
+body {
 }
+
 input 
 {
         position: relative;
         font-size: xx-small;
-        border: 0px solid #009EE0;
+        border: 0 solid #009EE0;
         max-width: 40px;
         float: left;
-	margin-top:1px;        
+	    margin-top:1px;        
 }
 
 ul 
@@ -27,28 +27,24 @@ td
 	border-radius: 3px;
 	position: relative;
 	float: left;
-        font-size: xx-small;
+    font-size: 10vw;
 
 }
 
 td span { 
         float: left;
         position: relative;
-	margin-top:2px;        
+	    margin-top:2px;        
 }
 
-#jilaku 
-{
-        position: relative;
-        float: left;
-        font-size: xx-small;
-        border : 3px solid #009EE0;
-        position: relative;
-        float: left;
+#jilaku  {
+        font-size: 10vw;
+        border : 7px solid #009EE0;
         padding-left: 5px;
         padding-right: 5px;
-        border-radius: 5px;
-        
+        border-radius: 15px;
+        margin: 0 auto;
+        margin-top: 25px;
 }
 
 #detailsdiv
@@ -59,10 +55,8 @@ td span {
         width: 115px;
         height: 115px;
         border : 3px solid #009EE0;
-        position: relative;
-        float: left;
         padding-left: 7px;
-	display: none;
+	    display: none;
 }
 
 #div_credits

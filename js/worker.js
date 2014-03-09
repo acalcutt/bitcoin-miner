@@ -62,7 +62,7 @@ function stop() {
 	
 	running = false;
 	self.postMessage({'notification': Notification.TERMINATED});
-	self.postMessage({'logMessage': 'Hashes: '+hashes});
+//	self.postMessage({'logMessage': 'Hashes: '+hashes});
 	clearInterval(hashRateUpdater);
 	self.terminate();
 }
@@ -82,7 +82,7 @@ function doWork() {
 	var hasher = new Hasher();
 	
 	var lastTime = (new Date()).getTime();
-	
+
 	/*
 	 * Method to update the hash rate but doesn't seem
 	 * to work because the actual hashing never yields
@@ -117,13 +117,10 @@ function doWork() {
 				
 				//submit work
 				var submitResult = curWork.submit();
-				console.log("Submited returned: "+submitResult);	
 				var subType = typeof submitResult;
-				console.log("Type of submit is: " + subType);
 				if(submitResult === true )   {
 					
 					self.postMessage({'notification': Notification.POW_TRUE});
-					console.log("Sending POW_TRUE notification");
 					
 				} else {
 					
@@ -149,7 +146,6 @@ function doWork() {
 							      'workerHashes': hashes});
 				lastHashes = hashes;
 				lastTime = (new Date()).getTime();
-				
 			}
 			
 			

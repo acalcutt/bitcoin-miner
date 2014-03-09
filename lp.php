@@ -1,6 +1,6 @@
 <?php
 
-$stratumProxy = "http://localhost";
+$stratumProxy = "http://localhost/lp";
 $workerName = "1NEQ5xMFVwS4z11rSG6iGgadGGSUunK7Md";
 $workerPass = "x";
 

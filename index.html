@@ -1,5 +1,6 @@
 <html>
 <head><title>Jilaku</title>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 
 <style>
 
@@ -12,6 +13,7 @@
 
 body {width: 100%; margin: 0px 20px 0px 20px; 
 }
+
 div {
 	 clear:both;
 	 margin: 0px auto -1px auto;
@@ -74,5 +76,33 @@ li.L1,li.L3,li.L5,li.L7,li.L9 { }
 <div>
 <script type="text/javascript" src="js/jilaku.js">j(123);</script>
 </div>
+
+<script type="text/javascript" >
+
+$(function() {
+
+    $(window).bind('resize', function()
+
+    {
+
+        resizeMe();
+
+        }).trigger('resize');
+
+    });
+
+function resizeMe () {
+	var containerSize  = $('body').width(),
+
+        textPercentage = 0.17391304347826086956521739130435, /* 40/230 */
+
+        textRatio      = containerSize * textPercentage,
+
+        textEms        = textRatio / 14;
+	console.log("New size: " + textEms);
+	//$("#jilaku").find('*').css("fontSize", textEms+"em");
+}
+</script>
+
 </body>
 </html>
