@@ -6,7 +6,26 @@ function Miner() {
 	var totalHashes = 0;
 	var blocks =1;
 
-
+    var nonce = 0;
+    var maxNonce = 0;
+    var scrypt = (function() {
+    	var inputPTR = Module._malloc(80);
+    	var outputPTR = Module._malloc(32);
+    
+    	var input = Module.HEAPU8.subarray(inputPTR, inputPTR + 80)
+    	var output = Module.HEAPU8.subarray(outputPTR, outputPTR + 32);
+    
+    	var scrypt = Module.cwrap('SCRYPT', null, ['number', 'number']);
+    
+    	return {
+    		input: input
+    		, output: output
+    		, hash: function() {
+    			scrypt(inputPTR, outputPTR);
+    		}
+    	};
+    })();
+    
 	this.Notification = {
 			SYSTEM_ERROR : 0,
 			PERMISSION_ERROR : 1,
@@ -28,25 +47,79 @@ function Miner() {
 	this.lastWorkHashes = 0;
 	
 
-	console.log("Setting up LongPoll");
-	longpoll = new Worker('js/longpoll.js');
+// 	console.log("Setting up LongPoll");
+// 	longpoll = new Worker('js/longpoll.js');
 
-	longpoll.onmessage = function (e) {
-		if (worker != null) {
-			worker.terminate();
-		}
-		worker = new Worker('js/worker.js'); 
-		worker.onmessage = workerMessage;
-		worker.postMessage({'cmd': 'start'});
-		blocks++;
+// 	longpoll.onmessage = function (e) {
+// 		if (worker != null) {
+// 			worker.terminate();
+// 		}
+// 		worker = new Worker('js/worker.js'); 
+// 		worker.onmessage = workerMessage;
+// 		worker.postMessage({'cmd': 'start'});
+// 		blocks++;
+// 	}
+
+// 	 console.log("Setting up worker"); 
+// 	worker = new Worker('js/worker.js');
+
+// 	worker.onmessage  = workerMessage;
+
+function hex2Buf(str) {
+	var r = [];
+
+	for (var i = 0, x = str.length; i < x; i += 2) {
+		r.push(parseInt(str.substr(i, 2), 16));
 	}
 
-	 console.log("Setting up worker"); 
-	worker = new Worker('js/worker.js');
+	return r;
+};
 
-	worker.onmessage  = workerMessage;
+function buf2Hex(buf) {
+	var r = '';
 
+	for (var i = 0, x = buf.length; i < x; i += 1) {
+		r += (buf[i] <= 0xf ? '0' : '') + buf[i].toString(16);
+	}
 
+	return r;
+};
+
+function unpackWork(msg) {
+	var buf = hex2Buf(msg);
+
+	// Copy it into the input
+	for (var i = 0; i < 76; i += 1) {
+		scrypt.input[i] = buf[i];
+	}
+
+	// Set the start and end
+	nonce = (buf[76] | (buf[77] << 8) | (buf[78] << 16) | (buf[79] << 24)) >>> 0;
+	maxNonce = (buf[80] | (buf[81] << 8) | (buf[82] << 16) | (buf[83] << 24)) >>> 0;
+
+	workLoop();
+};
+
+function workLoop() {
+	while (nonce < maxNonce) {	
+		scrypt.input[76] = nonce & 0xff;
+		scrypt.input[77] = (nonce >> 8) & 0xff;
+		scrypt.input[78] = (nonce >> 16) & 0xff;
+		scrypt.input[79] = (nonce >> 24) & 0xff;
+
+		scrypt.hash();
+
+		// We're just doing a simple share system, so this is the only check
+		if (scrypt.output[31] == 0 && scrypt.output[30] <= 6) {
+			self.postMessage(buf2Hex(scrypt.input) + buf2Hex(scrypt.output));
+		}
+
+		// Increase the nonce
+		nonce += 1;
+	}
+
+	self.postMessage(false);
+};
 	 function workerMessage(e) {
 		
 		var notification = e.data.notification;
@@ -127,22 +200,13 @@ function Miner() {
 				case self.Notification.NEW_BLOCK_DETECTED: message = 'LONGPOLL detected new block.'; break;
 				case self.Notification.NEW_WORK: 
 	
-				//		if (self.lastWorkTime > 0) {
-				//			
-			//				var hashes = workerHashes - self.lastWorkHashes;
-			//				var speed = hashes / Math.max(1, (new Date()).getTime() - self.lastWorkTime);
-		//					message = hashes + " hashes, " + speed.toFixed(2) + " khash/s";
+				message = 'Started new work.';
 							
-		//				} else {
-							
-							message = 'Started new work.';
-							
-		//				}
-						
-						self.lastWorkTime = (new Date()).getTime();
-						self.lastWorkHashes = workerHashes;
-	
-						break;
+
+				self.lastWorkTime = (new Date()).getTime();
+				self.lastWorkHashes = workerHashes;
+
+				break;
 				
 				case self.Notification.POW_TRUE: message = 'PROOF OF WORK RESULT: true (yay!!!)'; break;
 				case self.Notification.POW_FALSE: message = 'PROOF OF WORK RESULT: false (booooo)'; break;
@@ -188,5 +252,15 @@ function Miner() {
 	console.log(str);		
 	};
 	
+	var socket = io.connect();
+	
+	socket.on('connect', function () {
+          socket.emit('message', 'getwork');
+        });
 
+    
+    socket.on('work', function (work) {
+          unpackWork(work);
+        });
+        
 }

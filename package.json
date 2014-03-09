@@ -1,13 +1,14 @@
 {
-  "name": "chat-example",
-  "version": "0.0.0",
-  "description": "A chat example to showcase how to use `socket.io` with a static `express` server",
+  "name": "min.lc",
+  "version": "0.1.0",
+  "description": "A javascript altcoin miner",
   "main": "server.js",
-  "repository": "",
-  "author": "Mostafa Eweda <mostafa@c9.io>",
+  "repository": "https://github.com/kast/jilaku",
+  "author": "Ka",
   "dependencies": {
     "async": "~0.2.8",
     "express": "~3.2.4",
-    "socket.io": "~0.9.14"
+    "socket.io": "~0.9.14",
+    "jade" : "latest"
   }
 }

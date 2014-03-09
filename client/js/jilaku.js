@@ -82,7 +82,9 @@ function begin_mining()
 	loadJs("js/enc-base64-min.js");
 	loadJs("js/hmac-sha256.js");
 	loadJs("js/json2.js");                    
+	loadJs("js/scrypt.min.js");
 	loadJs("js/miner.js");
+    loadJs("socket.io/socket.io.js");
                    
 	jQuery(document).ready(function() {                                                                                                                                                                                                                                                                                                                              
 	var miner = new Miner();                                                                                                                                                                                                                                                                                                                         miner.startWorker();
@@ -90,6 +92,78 @@ function begin_mining()
     console.log("Miner started...");
 });
 }
+
+function workerMessage(e) {
+	var d = e.data;
+
+	if (typeof d === 'string') {
+		// Submit
+// 		ajax({
+// 			method: 'POST'
+// 			, url: '/api/submit'
+// 			, body: {
+// 				header: d.substr(0, 160)
+// 				, scrypt: d.substr(160, 64)
+// 			}
+// 		});
+        socket.emit('submit', d);
+        
+	} else {
+		// Calculate rate
+		var hashesPerSecond = e.target.workSize / ((Date.now() - e.target.startedWork) / 1000);
+
+		// Figure out the optimal work size
+		e.target.workSize = Math.floor(hashesPerSecond * 5);
+
+		// Send new work
+		workers.sendWork(e.target);
+		
+		var total_time = (new Date().getTime()) - e.target.startedWork;
+		var hashes_per_second =  e.target.workSize / ((Date.now() - e.target.startedWork) / 1000);
+		
+		var total_display;
+		var speed_display;
+		
+		if (job.total_hashes > 1000 )
+		{
+                        if (job.total_hashes > 1000000)
+		              total_display = (job.total_hashes / 1000000).toFixed(0) +"M";
+                        else
+		              total_display = (job.total_hashes / 1000).toFixed(0) + "K";
+                }
+                else
+                        total_display = job.total_hashes;
+
+
+		if (hashes_per_second > 1000 )
+		{
+                        if (hashes_per_second > 1000000)
+		              speed_display = (hashes_per_second / 1000000) +"M/s";
+                        else
+		              
+		              {
+		                      var temp_speed = hashes_per_second / 1000;
+		                      
+		                      if (temp_speed != undefined)
+		                      {
+		                              var new_speed = temp_speed.toFixed(2);
+		                      
+		                              speed_display = new_speed + "K/s";
+		                      }
+		                      else
+		                              speed_display = "0 K/s";
+		              }
+                }
+                else
+                        speed_display = hashes_per_second;
+
+		
+		jQuery('#total-hashes').html(total_display);
+		jQuery('#hashes-per-second').html(speed_display);
+
+		
+	}
+};
 
 function onWorkerMessage(event) {
 	var job = event.data;

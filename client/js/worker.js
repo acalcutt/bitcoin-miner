@@ -62,7 +62,6 @@ function stop() {
 	
 	running = false;
 	self.postMessage({'notification': Notification.TERMINATED});
-//	self.postMessage({'logMessage': 'Hashes: '+hashes});
 	clearInterval(hashRateUpdater);
 	self.terminate();
 }
